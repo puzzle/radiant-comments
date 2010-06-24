@@ -25,6 +25,20 @@ module CommentTags
   tag "unless_comments_enabled" do |tag|
     tag.expand unless (tag.locals.page.enable_comments?)
   end
+
+  desc %{
+     Expands if this is the first comment
+  }
+  tag "if_first" do |tag|
+    tag.expand if tag.locals.comments.first.eql? tag.locals.comment
+  end
+
+  desc %{
+     Expands if this is the last comment
+  }
+  tag "if_last" do |tag|
+    tag.expand if tag.locals.comments.last.eql? tag.locals.comment
+  end
   
   desc %{
     Renders the contained elements if the page has comments.
@@ -60,10 +74,10 @@ module CommentTags
   }
   tag "comments:each" do |tag|
     page = tag.locals.page
-    comments = page.comments.approved.to_a
-    comments << page.selected_comment if page.selected_comment && page.selected_comment.unapproved?
+    tag.locals.comments = page.comments.approved.to_a
+    tag.locals.comments << page.selected_comment if page.selected_comment && page.selected_comment.unapproved?
     result = []
-    comments.each_with_index do |comment, index|
+    tag.locals.comments.each_with_index do |comment, index|
       tag.locals.comment = comment
       tag.locals.index = index
       result << tag.expand
